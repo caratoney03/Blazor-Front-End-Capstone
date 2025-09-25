@@ -1,0 +1,39 @@
+@page "/"
+@page "/events"
+@inject EventService EventService
+@using EventEase.Models
+@using EventEase.Components
+
+<h1>📋 All Events</h1>
+<Signup @ref="SignupModal" OnClose="HandleClose" />
+
+@if (EventService.GetEvents().Any())
+{
+    @foreach (var ev in EventService.GetEvents())
+    {
+        <div class="event-row mb-3">
+            <EventCard EventName="@ev.EventName" EventDate="@ev.EventDate" EventLocation="@ev.EventLocation" />
+            <button class="btn btn-success mt-2" @onclick="() => SignupModal?.Open(ev)">Sign Up</button>
+        </div>
+    }
+}
+else
+{
+    <p>No events available.</p>
+}
+
+@code {
+    private Signup? SignupModal;
+
+    private void ShowSignup(Event ev)
+    {
+        SignupModal?.Open(ev); // This sets SelectedEvent
+    }
+
+    private void HandleClose()
+    {
+        Console.WriteLine("Signup modal closed.");
+    }
+
+}
+

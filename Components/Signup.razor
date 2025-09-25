@@ -1,0 +1,95 @@
+@using EventEase.Models
+@using EventEase.Services
+@inject UserSessions Session
+@inject EventService EventService
+
+@if (IsVisible)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <h3>Sign Up for @SelectedEvent?.EventName</h3>
+
+            <div class="form-group">
+                <label>Name:</label>
+                <input @bind="UserName" class="form-control" />
+                @if (ShowValidation && string.IsNullOrWhiteSpace(UserName))
+                {
+                    <span class="text-danger">Name is required.</span>
+                }
+
+                <label>Email:</label>
+                <input @bind="UserEmail" class="form-control" />
+                @if (ShowValidation && !IsValidEmail(UserEmail))
+                {
+                    <span class="text-danger">Valid email is required.</span>
+                }
+
+                <button class="btn btn-primary mt-2" @onclick="Submit">Submit</button>
+                <button class="btn btn-secondary mt-2" @onclick="Close">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Event? SelectedEvent { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    public bool IsVisible { get; set; }
+    public string? UserName { get; set; }
+    public string? UserEmail { get; set; }
+    public bool ShowValidation { get; set; }
+
+    public void Open(Event ev)
+    {
+        SelectedEvent = ev;
+        IsVisible = true;
+        UserName = string.Empty;
+        UserEmail = string.Empty;
+        ShowValidation = false;
+        StateHasChanged();
+    }
+
+    private async void Submit()
+    {
+        ShowValidation = true;
+
+        if (!string.IsNullOrWhiteSpace(UserName) && IsValidEmail(UserEmail ?? string.Empty))
+        {
+            try
+            {
+                Session.UserName = UserName;
+                Session.UserEmail = UserEmail;
+
+                if (SelectedEvent != null && !string.IsNullOrEmpty(SelectedEvent.EventName))
+                {
+                    Session.Register(SelectedEvent.EventName);
+                    await EventService.RegisterAttendee(
+                        SelectedEvent.EventName,
+                        UserName,
+                        UserEmail ?? string.Empty
+                    );
+                }
+
+                await Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Signup error: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await OnClose.InvokeAsync();
+        StateHasChanged();
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        return !string.IsNullOrWhiteSpace(email) && email.Contains("@") && email.Contains(".");
+    }
+}
+

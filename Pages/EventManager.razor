@@ -1,0 +1,88 @@
+@page "/manage"
+@inject EventService EventService
+@using EventEase.Models
+
+<h1>⚙️ Manage Events</h1>
+
+@if (EventService.GetEvents().Any())
+{
+    @foreach (var ev in EventService.GetEvents())
+    {
+        <div class="event-row mb-4">
+            <EventCard EventName="@ev.EventName" EventDate="@ev.EventDate" EventLocation="@ev.EventLocation" />
+
+            <button class="btn btn-secondary me-2 mt-2" @onclick="() => SelectEvent(ev)">Edit</button>
+            <button class="btn btn-danger mt-2" @onclick="() => { if (ev.EventName != null) Delete(ev.EventName); }">Delete</button>
+
+            @if (ev.Attendees?.Any() == true)
+            {
+                <div class="mt-2">
+                    <strong>Attendees:</strong>
+                    <ul>
+                        @foreach (var attendee in ev.Attendees)
+                        {
+                            <li>@attendee.UserName (@attendee.UserEmail)</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+}
+else
+{
+    <p>No events available.</p>
+}
+
+@if (selectedEvent != null)
+{
+    <div class="edit-form mt-4">
+        <h3>Edit Event</h3>
+
+        <label>Event Name:</label>
+        <input @bind="selectedEvent.EventName" class="form-control" />
+
+        <label>Date:</label>
+        <input type="date" @bind="selectedEvent.EventDate" class="form-control" />
+
+        <label>Location:</label>
+        <input @bind="selectedEvent.EventLocation" class="form-control" />
+
+        <button class="btn btn-success mt-2" @onclick="SaveChanges">Save</button>
+        <button class="btn btn-outline-secondary mt-2" @onclick="CancelEdit">Cancel</button>
+    </div>
+}
+
+@code {
+    private Event? selectedEvent;
+
+    private void SelectEvent(Event ev)
+    {
+        selectedEvent = new Event
+        {
+            EventName = ev.EventName,
+            EventDate = ev.EventDate,
+            EventLocation = ev.EventLocation
+        };
+    }
+
+    private void SaveChanges()
+    {
+        if (selectedEvent != null)
+        {
+            EventService.UpdateEvent(selectedEvent);
+        }
+        selectedEvent = null;
+    }
+
+    private void CancelEdit()
+    {
+        selectedEvent = null;
+    }
+
+    private void Delete(string eventName)
+    {
+        EventService.DeleteEventByName(eventName);
+    }
+}
+

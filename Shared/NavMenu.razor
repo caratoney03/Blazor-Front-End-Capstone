@@ -1,0 +1,41 @@
+<nav class="nav-menu">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="/events" Match="NavLinkMatch.All">
+                📋 Event List
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="/register">
+                📝 Register Event
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="/manage">
+                ⚙️ Manage Events
+            </NavLink>
+        </li>
+    </ul>
+</nav>
+
+<style>
+    .nav-menu {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-right: 1px solid #ddd;
+        height: 100vh;
+    }
+
+    .nav-link {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+    }
+
+    .nav-link.active {
+        color: #007bff;
+        font-weight: bold;
+    }
+</style>
+

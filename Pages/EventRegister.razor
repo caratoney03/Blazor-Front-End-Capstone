@@ -1,0 +1,36 @@
+@page "/register"
+@using EventEase.Services
+@inject EventService EventService
+
+<h2>📝 Register for an Event</h2>
+
+<div class="form-group">
+    <label>Event Name:</label>
+    <input @bind="EventName" class="form-control" />
+
+    <label>Date:</label>
+    <input type="date" @bind="EventDate" class="form-control" />
+
+    <label>Location:</label>
+    <input @bind="EventLocation" class="form-control" />
+
+    <button class="btn btn-primary mt-2" @onclick="RegisterEvent">Register</button>
+</div>
+
+@code {
+    private string? EventName;
+    private DateTime EventDate = DateTime.Today;
+    private string? EventLocation;
+
+    private void RegisterEvent()
+    {
+        if (!string.IsNullOrWhiteSpace(EventName) && !string.IsNullOrWhiteSpace(EventLocation))
+        {
+            EventService.AddEvent(EventName, EventDate, EventLocation!);
+            EventName = string.Empty;
+            EventLocation = string.Empty;
+            EventDate = DateTime.Today;
+        }
+        // Optionally, you could show an error message if EventName or EventLocation is null or empty.
+    }
+}
